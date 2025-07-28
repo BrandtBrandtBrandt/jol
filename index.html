@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <title>Lyd & Baggrundsskifter</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    body {
+      /* gør baggrundsbillede fuld skærm */
+      background-size: cover;
+      background-position: center;
+      transition: background-image 0.5s ease-in-out;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    button {
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      cursor: pointer;
+      border: none;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      background: rgba(255,255,255,0.8);
+    }
+  </style>
+</head>
+<body>
+
+  <button id="playButton">Afspil lyd & skift baggrund</button>
+  <audio id="audioPlayer" src="sounds/lydfil.mp3" preload="auto"></audio>
+
+  <script>
+    const images = [
+      'images/bg1.jpg',
+      'images/bg2.jpg',
+      'images/bg3.jpg',
+      'images/bg4.jpg'
+      // tilføj så mange du vil...
+    ];
+    let idx = 0;
+
+    const btn   = document.getElementById('playButton');
+    const audio = document.getElementById('audioPlayer');
+
+    // Sæt initial baggrund
+    document.body.style.backgroundImage = `url('${images[0]}')`;
+
+    btn.addEventListener('click', () => {
+      // Afspil lyd
+      audio.currentTime = 0;
+      audio.play();
+
+      // Skift billede
+      idx = (idx + 1) % images.length;
+      document.body.style.backgroundImage = `url('${images[idx]}')`;
+    });
+  </script>
+
+</body>
+</html>
