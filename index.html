@@ -9,7 +9,6 @@
       margin: 0;
     }
     body {
-      /* gør baggrundsbillede fuld skærm */
       background-size: cover;
       background-position: center;
       transition: background-image 0.5s ease-in-out;
@@ -30,31 +29,24 @@
 </head>
 <body>
 
-  <button id="playButton">Vi ska' ha' Tequila Shot</button>
+  <button id="playButton">Vi ska' ha' Tequila shot!</button>
   <audio id="audioPlayer" src="sounds/viSkaHaTequilaShot.mov" preload="auto"></audio>
 
   <script>
-    const images = [
-      'images/jol1.jpg',
-      'images/jol2.jpg'
-      // tilføj så mange du vil...
-    ];
-    let idx = 0;
-
     const btn   = document.getElementById('playButton');
     const audio = document.getElementById('audioPlayer');
-
-    // Sæt initial baggrund
-    document.body.style.backgroundImage = `url('${images[0]}')`;
 
     btn.addEventListener('click', () => {
       // Afspil lyd
       audio.currentTime = 0;
       audio.play();
 
-      // Skift billede
-      idx = (idx + 1) % images.length;
-      document.body.style.backgroundImage = `url('${images[idx]}')`;
+      // Vælg et tilfældigt tal mellem 1 og 42
+      let n = Math.floor(Math.random() * 42) + 1;
+      // Pad med 0 foran, hvis tallet er mindre end 10
+      let num = n < 10 ? '0' + n : n;
+      // Sæt baggrund til jol##.jpg
+      document.body.style.backgroundImage = `url('images/jol${num}.jpg')`;
     });
   </script>
 
