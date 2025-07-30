@@ -21,25 +21,44 @@
 </head>
 <body>
 
-  <img id="playButton" src="buttonLR.png" alt="Play Button" style="cursor: pointer; width: 200px;">
+  <img id="playButton" src="buttonLR.png" alt="Play Button" style="cursor: pointer; width: 400px;">
   <audio id="audioPlayer" src="sounds/viSkaHaTequilaShot.mov" preload="auto"></audio>
 
   <script>
-    const btn   = document.getElementById('playButton');
+    const btn = document.getElementById('playButton');
     const audio = document.getElementById('audioPlayer');
+
+    let currentIndex = 1;
+
+    function pad(n) {
+      return n < 10 ? '0' + n : n;
+    }
+
+    function preloadNextImages(startIndex) {
+      for (let i = 1; i <= 5; i++) {
+        let nextIndex = (startIndex + i - 1) % 42 + 1;
+        const img = new Image();
+        img.src = `images/jol${pad(nextIndex)}.jpg`;
+      }
+    }
 
     btn.addEventListener('click', () => {
       // Afspil lyd
       audio.currentTime = 0;
       audio.play();
 
-      // Vælg et tilfældigt tal mellem 1 og 42
-      let n = Math.floor(Math.random() * 42) + 1;
-      // Pad med 0 foran, hvis tallet er mindre end 10
-      let num = n < 10 ? '0' + n : n;
-      // Sæt baggrund til jol##.jpg
-      document.body.style.backgroundImage = `url('images/jol${num}.jpg')`;
+      // Skift baggrund
+      document.body.style.backgroundImage = `url('images/jol${pad(currentIndex)}.jpg')`;
+
+      // Forøg index (og loop tilbage til 1 efter 42)
+      currentIndex = currentIndex === 42 ? 1 : currentIndex + 1;
+
+      // Preload de næste 5 billeder
+      preloadNextImages(currentIndex);
     });
+
+    // Preload de første 5 billeder ved load
+    preloadNextImages(currentIndex);
   </script>
 
 </body>
