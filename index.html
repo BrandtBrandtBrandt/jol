@@ -223,6 +223,7 @@
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
+      setTimeout(() => {
       audio.currentTime = 0;
       audio.play();
 
@@ -231,6 +232,7 @@
         spread: 70,
         origin: { y: 0.6 }
       });
+    }, 500);
 
       isAnimating = false;
     }
