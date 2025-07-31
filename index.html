@@ -14,8 +14,27 @@
       background-position: center;
       transition: background-image 0.5s ease-in-out;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
+      justify-content: flex-start;
+      padding-top: 50px;
+    }
+    #controls {
+      margin-top: 20px;
+      background: rgba(255,255,255,0.8);
+      padding: 1rem;
+      border-radius: 0.5rem;
+    }
+    .name-field {
+      display: block;
+      margin: 0.3rem 0;
+    }
+    #selectedNames {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      background: rgba(255,255,255,0.8);
+      padding: 1rem;
+      border-radius: 0.5rem;
     }
   </style>
 </head>
@@ -24,9 +43,38 @@
   <img id="playButton" src="buttonLR.png" alt="Play Button" style="cursor: pointer; width: 400px;">
   <audio id="audioPlayer" src="sounds/viSkaHaTequilaShot.mov" preload="auto"></audio>
 
+  <div id="controls">
+    <label for="antal">Antal personer:</label>
+    <select id="antal">
+      <option value="">-- vælg --</option>
+      <!-- Options 1–15 -->
+      <script>
+        for (let i = 1; i <= 15; i++) {
+          document.write(`<option value="${i}">${i}</option>`);
+        }
+      </script>
+    </select>
+
+    <label for="procent">Trækprocent:</label>
+    <select id="procent">
+      <option value="20">20%</option>
+      <option value="40">40%</option>
+      <option value="60">60%</option>
+      <option value="80">80%</option>
+    </select>
+
+    <div id="nameInputs"></div>
+  </div>
+
+  <div id="selectedNames"></div>
+
   <script>
     const btn = document.getElementById('playButton');
     const audio = document.getElementById('audioPlayer');
+    const antalSelect = document.getElementById('antal');
+    const procentSelect = document.getElementById('procent');
+    const nameInputsDiv = document.getElementById('nameInputs');
+    const selectedNamesDiv = document.getElementById('selectedNames');
 
     let currentIndex = 1;
 
@@ -42,22 +90,41 @@
       }
     }
 
-    btn.addEventListener('click', () => {
-      // Afspil lyd
-      audio.currentTime = 0;
-      audio.play();
-
-      // Skift baggrund
-      document.body.style.backgroundImage = `url('images/jol${pad(currentIndex)}.jpg')`;
-
-      // Forøg index (og loop tilbage til 1 efter 42)
-      currentIndex = currentIndex === 42 ? 1 : currentIndex + 1;
-
-      // Preload de næste 5 billeder
-      preloadNextImages(currentIndex);
+    // Update name fields when number selected
+    antalSelect.addEventListener('change', () => {
+      const antal = parseInt(antalSelect.value);
+      nameInputsDiv.innerHTML = '';
+      for (let i = 0; i < antal; i++) {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = `Navn ${i + 1}`;
+        input.className = 'name-field';
+        nameInputsDiv.appendChild(input);
+      }
     });
 
-    // Preload de første 5 billeder ved load
+    // Button click handler
+    btn.addEventListener('click', () => {
+      // Lyd og billede
+      audio.currentTime = 0;
+      audio.play();
+      document.body.style.backgroundImage = `url('images/jol${pad(currentIndex)}.jpg')`;
+      currentIndex = currentIndex === 42 ? 1 : currentIndex + 1;
+      preloadNextImages(currentIndex);
+
+      // Navnetræk
+      const inputs = Array.from(document.querySelectorAll('.name-field'));
+      const names = inputs.map(input => input.value.trim()).filter(name => name !== '');
+      const procent = parseInt(procentSelect.value);
+      const antalToDraw = Math.max(1, Math.floor((procent / 100) * names.length));
+
+      const shuffled = names.sort(() => 0.5 - Math.random());
+      const selected = shuffled.slice(0, antalToDraw);
+
+      selectedNamesDiv.innerHTML = `<strong>Udvalgte:</strong><br>${selected.join('<br>')}`;
+    });
+
+    // Preload on load
     preloadNextImages(currentIndex);
   </script>
 
