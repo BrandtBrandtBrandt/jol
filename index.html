@@ -47,7 +47,6 @@
     <label for="antal">Antal personer:</label>
     <select id="antal">
       <option value="">-- vælg --</option>
-      <!-- Options 1–15 -->
       <script>
         for (let i = 1; i <= 15; i++) {
           document.write(`<option value="${i}">${i}</option>`);
@@ -67,6 +66,9 @@
   </div>
 
   <div id="selectedNames"></div>
+
+  <!-- Confetti library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <script>
     const btn = document.getElementById('playButton');
@@ -90,7 +92,6 @@
       }
     }
 
-    // Update name fields when number selected
     antalSelect.addEventListener('change', () => {
       const antal = parseInt(antalSelect.value);
       nameInputsDiv.innerHTML = '';
@@ -103,28 +104,31 @@
       }
     });
 
-    // Button click handler
     btn.addEventListener('click', () => {
-      // Lyd og billede
+      // Sound and background
       audio.currentTime = 0;
       audio.play();
       document.body.style.backgroundImage = `url('images/jol${pad(currentIndex)}.jpg')`;
       currentIndex = currentIndex === 42 ? 1 : currentIndex + 1;
       preloadNextImages(currentIndex);
 
-      // Navnetræk
+      // Name draw
       const inputs = Array.from(document.querySelectorAll('.name-field'));
       const names = inputs.map(input => input.value.trim()).filter(name => name !== '');
       const procent = parseInt(procentSelect.value);
       const antalToDraw = Math.max(1, Math.floor((procent / 100) * names.length));
-
       const shuffled = names.sort(() => 0.5 - Math.random());
       const selected = shuffled.slice(0, antalToDraw);
-
       selectedNamesDiv.innerHTML = `<strong>Udvalgte:</strong><br>${selected.join('<br>')}`;
+
+      // 🎉 Fire confetti!
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
     });
 
-    // Preload on load
     preloadNextImages(currentIndex);
   </script>
 
