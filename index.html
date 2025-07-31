@@ -9,7 +9,7 @@
       margin: 0;
       font-family: sans-serif;
     }
-  
+
     body {
       background-image: url('images/jol00.jpg');
       background-size: cover;
@@ -21,13 +21,13 @@
       justify-content: flex-start;
       padding: 2rem 1rem;
     }
-  
+
     #playButton {
       width: 200px;
       max-width: 80vw;
       margin-bottom: 1.5rem;
     }
-  
+
     #controls {
       width: 100%;
       max-width: 400px;
@@ -37,13 +37,13 @@
       box-sizing: border-box;
       font-size: 1rem;
     }
-  
+
     label {
       display: block;
       margin-top: 0.7rem;
       font-weight: bold;
     }
-  
+
     select {
       width: 100%;
       padding: 0.6rem;
@@ -51,7 +51,7 @@
       margin-bottom: 1rem;
       font-size: 1rem;
     }
-  
+
     .name-field {
       width: 100%;
       padding: 0.5rem;
@@ -59,7 +59,7 @@
       margin-bottom: 0.7rem;
       box-sizing: border-box;
     }
-  
+
     #selectedNames {
       margin-top: 1.5rem;
       font-size: 1.2rem;
@@ -69,38 +69,51 @@
       width: 100%;
       max-width: 400px;
       box-sizing: border-box;
+      min-height: 3rem;
     }
-  
-    /* 🔁 SCALE UP ~150% ON MOBILE */
-    @media (max-width: 960px) {
+
+    .name-line {
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeInUp 0.5s forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 480px) {
       body {
         padding: 1.5rem 1rem;
       }
-  
+
       #playButton {
         width: 300px;
         max-width: 90vw;
       }
-  
+
       #controls, #selectedNames {
         font-size: 1.5rem;
         padding: 1.5rem;
       }
-  
+
       .name-field {
         font-size: 1.4rem;
         padding: 0.7rem;
       }
-  
+
       select {
         font-size: 1.4rem;
         padding: 0.7rem;
       }
-  
+
       label {
         font-size: 1.4rem;
       }
-  
+
       #selectedNames {
         font-size: 1.4rem;
       }
@@ -109,8 +122,9 @@
 </head>
 <body>
 
-  <img id="playButton" src="buttonLR.png" alt="Play Button" style="cursor: pointer; width: 400px;">
+  <img id="playButton" src="buttonLR.png" alt="Play Button">
   <audio id="audioPlayer" src="sounds/viSkaHaTequilaShot.mov" preload="auto"></audio>
+  <audio id="drumrollSound" src="sounds/drumroll.mp3" preload="auto"></audio>
 
   <div id="controls">
     <label for="antal">Antal personer:</label>
@@ -136,18 +150,19 @@
 
   <div id="selectedNames"></div>
 
-  <!-- Confetti library -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <script>
     const btn = document.getElementById('playButton');
     const audio = document.getElementById('audioPlayer');
+    const drumroll = document.getElementById('drumrollSound');
     const antalSelect = document.getElementById('antal');
     const procentSelect = document.getElementById('procent');
     const nameInputsDiv = document.getElementById('nameInputs');
     const selectedNamesDiv = document.getElementById('selectedNames');
 
     let currentIndex = 1;
+    let isAnimating = false;
 
     function pad(n) {
       return n < 10 ? '0' + n : n;
@@ -173,29 +188,55 @@
       }
     });
 
-    btn.addEventListener('click', () => {
-      // Sound and background
+    async function displayNamesWithDrumroll(names) {
+      isAnimating = true;
+      selectedNamesDiv.innerHTML = '<strong>Trækker navne...</strong>';
+
+      for (let i = 0; i < names.length; i++) {
+        await new Promise(resolve => {
+          drumroll.currentTime = 0;
+          drumroll.play();
+          setTimeout(resolve, 3000);
+        });
+
+        if (i === 0) selectedNamesDiv.innerHTML = '<strong>Udvalgte:</strong><br>';
+
+        const div = document.createElement('div');
+        div.className = 'name-line';
+        div.textContent = names[i];
+        selectedNamesDiv.appendChild(div);
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+
+      // After all names: play Tequila and confetti
       audio.currentTime = 0;
       audio.play();
+
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+
+      isAnimating = false;
+    }
+
+    btn.addEventListener('click', async () => {
+      if (isAnimating) return;
+
       document.body.style.backgroundImage = `url('images/jol${pad(currentIndex)}.jpg')`;
       currentIndex = currentIndex === 42 ? 1 : currentIndex + 1;
       preloadNextImages(currentIndex);
 
-      // Name draw
       const inputs = Array.from(document.querySelectorAll('.name-field'));
       const names = inputs.map(input => input.value.trim()).filter(name => name !== '');
       const procent = parseInt(procentSelect.value);
       const antalToDraw = Math.max(1, Math.floor((procent / 100) * names.length));
       const shuffled = names.sort(() => 0.5 - Math.random());
       const selected = shuffled.slice(0, antalToDraw);
-      selectedNamesDiv.innerHTML = `<strong>Udvalgte:</strong><br>${selected.join('<br>')}`;
 
-      // 🎉 Fire confetti!
-      confetti({
-        particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
+      await displayNamesWithDrumroll(selected);
     });
 
     preloadNextImages(currentIndex);
