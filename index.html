@@ -70,6 +70,7 @@
       max-width: 400px;
       box-sizing: border-box;
       min-height: 3rem;
+      display: none; /* Hidden initially */
     }
 
     .name-line {
@@ -137,7 +138,7 @@
       </script>
     </select>
 
-    <label for="procent">Trækprocent:</label>
+    <label for="procent">Hvor mange skal drikke?:</label>
     <select id="procent">
       <option value="20">20%</option>
       <option value="40">40%</option>
@@ -190,6 +191,7 @@
 
     async function displayNamesWithDrumroll(names) {
       isAnimating = true;
+      selectedNamesDiv.style.display = 'block';
       selectedNamesDiv.innerHTML = '<strong>Trækker navne...</strong>';
 
       for (let i = 0; i < names.length; i++) {
@@ -209,7 +211,6 @@
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
-      // After all names: play Tequila and confetti
       audio.currentTime = 0;
       audio.play();
 
