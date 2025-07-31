@@ -132,7 +132,7 @@
 <body>
 
   <img id="playButton" src="buttonLR.png" alt="Play Button">
-  <audio id="audioPlayer" src="sounds/viSkaHaTequilaShot.mov" preload="auto"></audio>
+  <audio id="audioPlayer" src="sounds/viSkaHaTequilaShot.mp3" preload="auto"></audio>
   <audio id="drumrollSound" src="sounds/drumroll.mp3" preload="auto"></audio>
 
   <div id="controls">
@@ -223,16 +223,16 @@
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
-      setTimeout(() => {
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       audio.currentTime = 0;
-      audio.play();
+      await audio.play(); // important for mobile browser autoplay rules
 
       confetti({
         particleCount: 150,
         spread: 70,
         origin: { y: 0.6 }
       });
-    }, 500);
 
       isAnimating = false;
     }
