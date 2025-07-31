@@ -7,7 +7,9 @@
     html, body {
       height: 100%;
       margin: 0;
+      font-family: sans-serif;
     }
+  
     body {
       background-image: url('images/jol00.jpg');
       background-size: cover;
@@ -17,24 +19,70 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      padding-top: 50px;
+      padding: 2rem 1rem;
     }
+  
+    #playButton {
+      width: 200px;
+      max-width: 80vw;
+      margin-bottom: 1rem;
+    }
+  
     #controls {
-      margin-top: 20px;
-      background: rgba(255,255,255,0.8);
+      width: 100%;
+      max-width: 400px;
+      background: rgba(255,255,255,0.85);
       padding: 1rem;
       border-radius: 0.5rem;
+      box-sizing: border-box;
     }
-    .name-field {
+  
+    label {
       display: block;
-      margin: 0.3rem 0;
+      margin-top: 0.5rem;
+      font-weight: bold;
     }
+  
+    select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.3rem;
+      margin-bottom: 0.8rem;
+      font-size: 1rem;
+    }
+  
+    .name-field {
+      width: 100%;
+      padding: 0.4rem;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      box-sizing: border-box;
+    }
+  
     #selectedNames {
       margin-top: 1rem;
-      font-size: 1.2rem;
-      background: rgba(255,255,255,0.8);
+      font-size: 1.1rem;
+      background: rgba(255,255,255,0.85);
       padding: 1rem;
       border-radius: 0.5rem;
+      width: 100%;
+      max-width: 400px;
+      box-sizing: border-box;
+    }
+  
+    @media (max-width: 480px) {
+      body {
+        padding: 1rem;
+      }
+  
+      #controls, #selectedNames {
+        font-size: 1rem;
+        padding: 0.8rem;
+      }
+  
+      .name-field {
+        font-size: 0.95rem;
+      }
     }
   </style>
 </head>
