@@ -23,14 +23,14 @@
     }
 
     #playButton {
-      width: 200px;
+      width: 300px;
       max-width: 80vw;
       margin-bottom: 1.5rem;
     }
 
     #controls {
-      width: 100%;
-      max-width: 400px;
+      width: 80%;
+      /* max-width: 400px; */
       background: rgba(255,255,255,0.85);
       padding: 1rem;
       border-radius: 0.5rem;
@@ -66,11 +66,19 @@
       background: rgba(255,255,255,0.85);
       padding: 1rem;
       border-radius: 0.5rem;
-      width: 100%;
-      max-width: 400px;
+      width: 80%;
+      /* max-width: 400px; */
       box-sizing: border-box;
-      min-height: 3rem;
+      min-height: 9rem;
       display: none; /* Hidden initially */
+      overflow-y: auto;
+      max-height: none;
+    }
+
+    #nameInputs {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
     }
 
     .name-line {
@@ -86,7 +94,7 @@
       }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 960px) {
       body {
         padding: 1.5rem 1rem;
       }
@@ -138,13 +146,15 @@
       </script>
     </select>
 
-    <label for="procent">Hvor mange skal drikke?:</label>
-    <select id="procent">
-      <option value="20">20%</option>
-      <option value="40">40%</option>
-      <option value="60">60%</option>
-      <option value="80">80%</option>
-    </select>
+    <label for="procent">Hvor mange skal udvælges?</label>
+<select id="procent">
+  <option value="">Tilfældigt antal</option>
+  <script>
+    for (let i = 1; i <= 15; i++) {
+      document.write(`<option value="${i}">${i}</option>`);
+    }
+  </script>
+</select>
 
     <div id="nameInputs"></div>
   </div>
@@ -208,6 +218,8 @@
         div.textContent = names[i];
         selectedNamesDiv.appendChild(div);
 
+        selectedNamesDiv.scrollTop = selectedNamesDiv.scrollHeight;
+
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
@@ -224,21 +236,37 @@
     }
 
     btn.addEventListener('click', async () => {
-      if (isAnimating) return;
+  if (isAnimating) return;
 
-      document.body.style.backgroundImage = `url('images/jol${pad(currentIndex)}.jpg')`;
-      currentIndex = currentIndex === 42 ? 1 : currentIndex + 1;
-      preloadNextImages(currentIndex);
+  const antal = parseInt(antalSelect.value);
+  const inputs = Array.from(document.querySelectorAll('.name-field'));
+  const names = inputs.map(input => input.value.trim()).filter(name => name !== '');
 
-      const inputs = Array.from(document.querySelectorAll('.name-field'));
-      const names = inputs.map(input => input.value.trim()).filter(name => name !== '');
-      const procent = parseInt(procentSelect.value);
-      const antalToDraw = Math.max(1, Math.floor((procent / 100) * names.length));
-      const shuffled = names.sort(() => 0.5 - Math.random());
-      const selected = shuffled.slice(0, antalToDraw);
+  if (!antal || names.length === 0) {
+    selectedNamesDiv.style.display = 'block';
+    selectedNamesDiv.innerHTML = '<strong>Vælg antal personer</strong>';
+  } else {
+    selectedNamesDiv.style.display = 'block';
+    selectedNamesDiv.innerHTML = '<strong>Trækker navne...</strong>';
+  }
 
-      await displayNamesWithDrumroll(selected);
-    });
+  document.body.style.backgroundImage = `url('images/jol${pad(currentIndex)}.jpg')`;
+  currentIndex = currentIndex === 42 ? 1 : currentIndex + 1;
+  preloadNextImages(currentIndex);
+
+  let antalToDraw;
+  if (procentSelect.value === '') {
+    const procent = [20, 40, 60, 80][Math.floor(Math.random() * 4)];
+    antalToDraw = Math.max(1, Math.floor((procent / 100) * names.length));
+  } else {
+    antalToDraw = parseInt(procentSelect.value);
+    antalToDraw = Math.min(antalToDraw, names.length); // Don't exceed number of names
+  }
+  const shuffled = names.sort(() => 0.5 - Math.random());
+  const selected = shuffled.slice(0, antalToDraw);
+
+  await displayNamesWithDrumroll(selected);
+});
 
     preloadNextImages(currentIndex);
   </script>
