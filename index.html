@@ -29,7 +29,6 @@
     }
 
     #controls {
-      display: none;
       width: 80%;
       max-width: 400px;
       background: rgba(255,255,255,0.85);
@@ -240,7 +239,6 @@
 
     btn.addEventListener('click', async () => {
   if (isAnimating) return;
-  document.getElementById('controls').style.display = 'block';
 
   const antal = parseInt(antalSelect.value);
   const inputs = Array.from(document.querySelectorAll('.name-field'));
