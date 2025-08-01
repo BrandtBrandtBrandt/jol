@@ -9,7 +9,7 @@
       margin: 0;
       font-family: sans-serif;
     }
-
+  
     body {
       background-image: url('images/jol00.jpg');
       background-size: cover;
@@ -21,146 +21,127 @@
       justify-content: flex-start;
       padding: 2rem 1rem;
     }
-
+  
     #playButton {
-      width: 250px;
+      width: 200px;
       max-width: 80vw;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
     }
-
-    #controls, #selectedNames {
-      width: 80%;
+  
+    #controls {
+      width: 100%;
       max-width: 400px;
       background: rgba(255,255,255,0.85);
       padding: 1rem;
       border-radius: 0.5rem;
       box-sizing: border-box;
-      font-size: 1rem;
     }
-
+  
     label {
       display: block;
-      margin-top: 0.7rem;
+      margin-top: 0.5rem;
       font-weight: bold;
     }
-
-    select, .name-field {
+  
+    select {
       width: 100%;
-      padding: 0.6rem;
-      margin: 0.3rem 0 1rem;
+      padding: 0.5rem;
+      margin-top: 0.3rem;
+      margin-bottom: 0.8rem;
       font-size: 1rem;
+    }
+  
+    .name-field {
+      width: 100%;
+      padding: 0.4rem;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
       box-sizing: border-box;
     }
-
-    #nameInputs {
-      max-height: 300px;
-      overflow-y: auto;
-      margin-bottom: 1rem;
-    }
-
+  
     #selectedNames {
-      margin-top: 1.5rem;
-      font-size: 1.2rem;
-      min-height: 9rem;
-      display: none;
-      overflow-y: auto;
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      background: rgba(255,255,255,0.85);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      width: 100%;
+      max-width: 400px;
+      box-sizing: border-box;
     }
-
-    .name-line {
-      opacity: 0;
-      transform: translateY(10px);
-      animation: fadeInUp 0.5s forwards;
-    }
-
-    @keyframes fadeInUp {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @media (max-width: 400px) {
+  
+    @media (max-width: 480px) {
       body {
-        padding: 1.5rem 1rem;
+        padding: 1rem;
       }
-
-      #playButton {
-        width: 300px;
-        max-width: 90vw;
-      }
-
+  
       #controls, #selectedNames {
-        font-size: 1.4rem;
-        padding: 1.5rem;
+        font-size: 1rem;
+        padding: 0.8rem;
       }
-
-      .name-field, select, label {
-        font-size: 1.4rem;
+  
+      .name-field {
+        font-size: 0.95rem;
       }
     }
   </style>
 </head>
 <body>
 
-  <img id="playButton" src="buttonLR.png" alt="Play Button">
-  <audio id="audioPlayer" src="sounds/viSkaHaTequilaShot.mp3" preload="auto"></audio>
-  <audio id="drumrollSound" src="sounds/drumroll.mp3" preload="auto"></audio>
+  <img id="playButton" src="buttonLR.png" alt="Play Button" style="cursor: pointer; width: 400px;">
+  <audio id="audioPlayer" src="sounds/viSkaHaTequilaShot.mov" preload="auto"></audio>
 
-  <main id="controls">
+  <div id="controls">
     <label for="antal">Antal personer:</label>
     <select id="antal">
       <option value="">-- vælg --</option>
+      <script>
+        for (let i = 1; i <= 15; i++) {
+          document.write(`<option value="${i}">${i}</option>`);
+        }
+      </script>
     </select>
 
-    <label for="procent">Hvor mange skal udvælges?</label>
+    <label for="procent">Trækprocent:</label>
     <select id="procent">
-      <option value="">Tilfældigt antal</option>
+      <option value="20">20%</option>
+      <option value="40">40%</option>
+      <option value="60">60%</option>
+      <option value="80">80%</option>
     </select>
 
     <div id="nameInputs"></div>
-  </main>
+  </div>
 
-  <section id="selectedNames"></section>
+  <div id="selectedNames"></div>
 
+  <!-- Confetti library -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
   <script>
-    // Elements
     const btn = document.getElementById('playButton');
     const audio = document.getElementById('audioPlayer');
-    const drumroll = document.getElementById('drumrollSound');
     const antalSelect = document.getElementById('antal');
     const procentSelect = document.getElementById('procent');
     const nameInputsDiv = document.getElementById('nameInputs');
     const selectedNamesDiv = document.getElementById('selectedNames');
 
     let currentIndex = 1;
-    let isAnimating = false;
 
-    // Helpers
-    const pad = n => n < 10 ? '0' + n : n;
+    function pad(n) {
+      return n < 10 ? '0' + n : n;
+    }
 
-    const preloadNextImages = (startIndex) => {
+    function preloadNextImages(startIndex) {
       for (let i = 1; i <= 5; i++) {
-        const index = (startIndex + i - 1) % 42 + 1;
-        new Image().src = `images/jol${pad(index)}.jpg`;
+        let nextIndex = (startIndex + i - 1) % 42 + 1;
+        const img = new Image();
+        img.src = `images/jol${pad(nextIndex)}.jpg`;
       }
-    };
-
-    const populateSelect = (select, count, firstOptionText = '') => {
-      if (firstOptionText) {
-        select.append(new Option(firstOptionText, ''));
-      }
-      for (let i = 1; i <= count; i++) {
-        select.append(new Option(i, i));
-      }
-    };
-
-    // Setup
-    populateSelect(antalSelect, 16, '-- vælg --');
-    populateSelect(procentSelect, 16, 'Tilfældigt antal');
+    }
 
     antalSelect.addEventListener('change', () => {
-      const antal = parseInt(antalSelect.value) || 0;
+      const antal = parseInt(antalSelect.value);
       nameInputsDiv.innerHTML = '';
       for (let i = 0; i < antal; i++) {
         const input = document.createElement('input');
@@ -171,73 +152,33 @@
       }
     });
 
-    async function displayNamesWithDrumroll(names) {
-      isAnimating = true;
-      selectedNamesDiv.style.display = 'block';
-      selectedNamesDiv.innerHTML = '<strong>Trækker navne...</strong>';
-
-      for (let i = 0; i < names.length; i++) {
-        await new Promise(res => {
-          drumroll.currentTime = 0;
-          drumroll.play();
-          setTimeout(res, 3000);
-        });
-
-        if (i === 0) selectedNamesDiv.innerHTML = '<strong>Udvalgte:</strong><br>';
-
-        const div = document.createElement('div');
-        div.className = 'name-line';
-        div.textContent = names[i];
-        selectedNamesDiv.appendChild(div);
-        selectedNamesDiv.scrollTop = selectedNamesDiv.scrollHeight;
-
-        await new Promise(res => setTimeout(res, 1000));
-      }
-
-      await new Promise(res => setTimeout(res, 500));
+    btn.addEventListener('click', () => {
+      // Sound and background
       audio.currentTime = 0;
-      await audio.play();
+      audio.play();
+      document.body.style.backgroundImage = `url('images/jol${pad(currentIndex)}.jpg')`;
+      currentIndex = currentIndex === 42 ? 1 : currentIndex + 1;
+      preloadNextImages(currentIndex);
 
+      // Name draw
+      const inputs = Array.from(document.querySelectorAll('.name-field'));
+      const names = inputs.map(input => input.value.trim()).filter(name => name !== '');
+      const procent = parseInt(procentSelect.value);
+      const antalToDraw = Math.max(1, Math.floor((procent / 100) * names.length));
+      const shuffled = names.sort(() => 0.5 - Math.random());
+      const selected = shuffled.slice(0, antalToDraw);
+      selectedNamesDiv.innerHTML = `<strong>Udvalgte:</strong><br>${selected.join('<br>')}`;
+
+      // 🎉 Fire confetti!
       confetti({
         particleCount: 150,
         spread: 70,
         origin: { y: 0.6 }
       });
-
-      isAnimating = false;
-    }
-
-    btn.addEventListener('click', async () => {
-      if (isAnimating) return;
-
-      const antal = parseInt(antalSelect.value);
-      const names = Array.from(document.querySelectorAll('.name-field'))
-        .map(input => input.value.trim())
-        .filter(Boolean);
-
-      if (!antal || names.length === 0) {
-        selectedNamesDiv.style.display = 'block';
-        selectedNamesDiv.innerHTML = '<strong>Vælg antal personer</strong>';
-        return;
-      }
-
-      // Update background
-      document.body.style.backgroundImage = `url('images/jol${pad(currentIndex)}.jpg')`;
-      currentIndex = currentIndex === 42 ? 1 : currentIndex + 1;
-      preloadNextImages(currentIndex);
-
-      // Select names
-      let antalToDraw = procentSelect.value
-        ? Math.min(parseInt(procentSelect.value), names.length)
-        : Math.max(1, Math.floor(([20, 40, 60, 80][Math.floor(Math.random() * 4)] / 100) * names.length));
-
-      const shuffled = [...names].sort(() => 0.5 - Math.random());
-      const selected = shuffled.slice(0, antalToDraw);
-
-      await displayNamesWithDrumroll(selected);
     });
 
     preloadNextImages(currentIndex);
   </script>
+
 </body>
 </html>
