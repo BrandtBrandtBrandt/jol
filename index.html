@@ -26,6 +26,7 @@
       width: 200px;
       max-width: 80vw;
       margin-bottom: 1rem;
+      cursor: pointer;
     }
 
     #controls {
@@ -88,8 +89,9 @@
 </head>
 <body>
 
-  <img id="playButton" src="buttonLR.png" alt="Play Button" style="cursor: pointer; width: 400px;">
+  <img id="playButton" src="buttonLR.png" alt="Play Button">
   <audio id="audioPlayer" src="sounds/viSkaHaTequilaShot.mp3" preload="auto"></audio>
+  <audio id="drumroll" src="sounds/drumroll.mp3" preload="auto"></audio>
 
   <div id="controls">
     <label for="antal">Antal personer:</label>
@@ -116,12 +118,13 @@
 
   <div id="selectedNames"></div>
 
-  <!-- Confetti library -->
+  <!-- Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <script>
     const btn = document.getElementById('playButton');
     const audio = document.getElementById('audioPlayer');
+    const drumroll = document.getElementById('drumroll');
     const antalSelect = document.getElementById('antal');
     const procentSelect = document.getElementById('procent');
     const nameInputsDiv = document.getElementById('nameInputs');
@@ -154,17 +157,18 @@
     });
 
     btn.addEventListener('click', () => {
-      // Sound and background
-      audio.currentTime = 0;
-      audio.play();
+      btn.disabled = true;
+
+      // Change background image
       document.body.style.backgroundImage = `url('images/jol${pad(currentIndex)}.jpg')`;
       currentIndex = currentIndex === 42 ? 1 : currentIndex + 1;
       preloadNextImages(currentIndex);
 
-      // Name draw
+      // Get names
       const inputs = Array.from(document.querySelectorAll('.name-field'));
       const names = inputs.map(input => input.value.trim()).filter(name => name !== '');
 
+      // Get percentage or random
       let procentValue = procentSelect.value;
       if (procentValue === "") {
         const procentOptions = [20, 40, 60, 80];
@@ -176,14 +180,49 @@
       const antalToDraw = Math.max(1, Math.floor((procentValue / 100) * names.length));
       const shuffled = names.sort(() => 0.5 - Math.random());
       const selected = shuffled.slice(0, antalToDraw);
-      selectedNamesDiv.innerHTML = `<strong>Udvalgte:</strong><br>${selected.join('<br>')}`;
 
-      // 🎉 Fire confetti!
-      confetti({
-        particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
+      selectedNamesDiv.innerHTML = `<strong>Udvalgte:</strong><br>`;
+
+      async function playDrumrollAndShowName(name) {
+        return new Promise((resolve) => {
+          drumroll.currentTime = 0;
+          drumroll.play();
+          setTimeout(() => {
+            const nameElem = document.createElement('div');
+            nameElem.style.opacity = 0;
+            nameElem.style.transition = 'opacity 1s ease-in-out';
+            nameElem.textContent = name;
+            selectedNamesDiv.appendChild(nameElem);
+            requestAnimationFrame(() => {
+              nameElem.style.opacity = 1;
+            });
+            resolve();
+          }, 2000); // show name after 2 sec
+        });
+      }
+
+      async function revealNames() {
+        for (const name of selected) {
+          await playDrumrollAndShowName(name);
+          await new Promise(res => setTimeout(res, 2200));
+        }
+
+        // Confetti
+        confetti({
+          particleCount: 150,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+
+        // Final sound
+        audio.currentTime = 0;
+        audio.play();
+        audio.onended = () => {
+          btn.disabled = false;
+        };
+      }
+
+      revealNames();
     });
 
     preloadNextImages(currentIndex);
