@@ -9,7 +9,7 @@
       margin: 0;
       font-family: sans-serif;
     }
-
+  
     body {
       background-image: url('images/jol00.jpg');
       background-size: cover;
@@ -21,13 +21,13 @@
       justify-content: flex-start;
       padding: 2rem 1rem;
     }
-
+  
     #playButton {
       width: 200px;
       max-width: 80vw;
       margin-bottom: 1rem;
     }
-
+  
     #controls {
       width: 100%;
       max-width: 400px;
@@ -36,13 +36,13 @@
       border-radius: 0.5rem;
       box-sizing: border-box;
     }
-
+  
     label {
       display: block;
       margin-top: 0.5rem;
       font-weight: bold;
     }
-
+  
     select {
       width: 100%;
       padding: 0.5rem;
@@ -50,7 +50,7 @@
       margin-bottom: 0.8rem;
       font-size: 1rem;
     }
-
+  
     .name-field {
       width: 100%;
       padding: 0.4rem;
@@ -58,7 +58,7 @@
       margin-bottom: 0.5rem;
       box-sizing: border-box;
     }
-
+  
     #selectedNames {
       margin-top: 1rem;
       font-size: 1.1rem;
@@ -69,17 +69,17 @@
       max-width: 400px;
       box-sizing: border-box;
     }
-
+  
     @media (max-width: 480px) {
       body {
         padding: 1rem;
       }
-
+  
       #controls, #selectedNames {
         font-size: 1rem;
         padding: 0.8rem;
       }
-
+  
       .name-field {
         font-size: 0.95rem;
       }
@@ -104,7 +104,6 @@
 
     <label for="procent">Hvor mange skal udvælges?</label>
     <select id="procent">
-      <option value="">Tilfældigt antal</option>
       <option value="20">20%</option>
       <option value="40">40%</option>
       <option value="60">60%</option>
@@ -164,16 +163,8 @@
       // Name draw
       const inputs = Array.from(document.querySelectorAll('.name-field'));
       const names = inputs.map(input => input.value.trim()).filter(name => name !== '');
-
-      let procentValue = procentSelect.value;
-      if (procentValue === "") {
-        const procentOptions = [20, 40, 60, 80];
-        procentValue = procentOptions[Math.floor(Math.random() * procentOptions.length)];
-      } else {
-        procentValue = parseInt(procentValue);
-      }
-
-      const antalToDraw = Math.max(1, Math.floor((procentValue / 100) * names.length));
+      const procent = parseInt(procentSelect.value);
+      const antalToDraw = Math.max(1, Math.floor((procent / 100) * names.length));
       const shuffled = names.sort(() => 0.5 - Math.random());
       const selected = shuffled.slice(0, antalToDraw);
       selectedNamesDiv.innerHTML = `<strong>Udvalgte:</strong><br>${selected.join('<br>')}`;
