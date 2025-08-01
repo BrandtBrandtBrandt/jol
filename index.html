@@ -28,7 +28,7 @@
       margin-bottom: 1.5rem;
     }
 
-    #controls {
+    #controls, #selectedNames {
       width: 80%;
       max-width: 400px;
       background: rgba(255,255,255,0.85);
@@ -44,41 +44,26 @@
       font-weight: bold;
     }
 
-    select {
+    select, .name-field {
       width: 100%;
       padding: 0.6rem;
-      margin-top: 0.3rem;
-      margin-bottom: 1rem;
+      margin: 0.3rem 0 1rem;
       font-size: 1rem;
-    }
-
-    .name-field {
-      width: 100%;
-      padding: 0.5rem;
-      font-size: 1rem;
-      margin-bottom: 0.7rem;
       box-sizing: border-box;
-    }
-
-    #selectedNames {
-      margin-top: 1.5rem;
-      font-size: 1.2rem;
-      background: rgba(255,255,255,0.85);
-      padding: 1rem;
-      border-radius: 0.5rem;
-      width: 80%;
-      max-width: 400px;
-      box-sizing: border-box;
-      min-height: 9rem;
-      display: none; /* Hidden initially */
-      overflow-y: auto;
-      max-height: none;
     }
 
     #nameInputs {
       max-height: 300px;
       overflow-y: auto;
       margin-bottom: 1rem;
+    }
+
+    #selectedNames {
+      margin-top: 1.5rem;
+      font-size: 1.2rem;
+      min-height: 9rem;
+      display: none;
+      overflow-y: auto;
     }
 
     .name-line {
@@ -105,25 +90,11 @@
       }
 
       #controls, #selectedNames {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         padding: 1.5rem;
       }
 
-      .name-field {
-        font-size: 1.4rem;
-        padding: 0.7rem;
-      }
-
-      select {
-        font-size: 1.4rem;
-        padding: 0.7rem;
-      }
-
-      label {
-        font-size: 1.4rem;
-      }
-
-      #selectedNames {
+      .name-field, select, label {
         font-size: 1.4rem;
       }
     }
@@ -135,35 +106,25 @@
   <audio id="audioPlayer" src="sounds/viSkaHaTequilaShot.mp3" preload="auto"></audio>
   <audio id="drumrollSound" src="sounds/drumroll.mp3" preload="auto"></audio>
 
-  <div id="controls">
+  <main id="controls">
     <label for="antal">Antal personer:</label>
     <select id="antal">
       <option value="">-- vælg --</option>
-      <script>
-        for (let i = 1; i <= 16; i++) {
-          document.write(`<option value="${i}">${i}</option>`);
-        }
-      </script>
     </select>
 
     <label for="procent">Hvor mange skal udvælges?</label>
-<select id="procent">
-  <option value="">Tilfældigt antal</option>
-  <script>
-    for (let i = 1; i <= 16; i++) {
-      document.write(`<option value="${i}">${i}</option>`);
-    }
-  </script>
-</select>
+    <select id="procent">
+      <option value="">Tilfældigt antal</option>
+    </select>
 
     <div id="nameInputs"></div>
-  </div>
+  </main>
 
-  <div id="selectedNames"></div>
+  <section id="selectedNames"></section>
 
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
   <script>
+    // Elements
     const btn = document.getElementById('playButton');
     const audio = document.getElementById('audioPlayer');
     const drumroll = document.getElementById('drumrollSound');
@@ -175,20 +136,31 @@
     let currentIndex = 1;
     let isAnimating = false;
 
-    function pad(n) {
-      return n < 10 ? '0' + n : n;
-    }
+    // Helpers
+    const pad = n => n < 10 ? '0' + n : n;
 
-    function preloadNextImages(startIndex) {
+    const preloadNextImages = (startIndex) => {
       for (let i = 1; i <= 5; i++) {
-        let nextIndex = (startIndex + i - 1) % 42 + 1;
-        const img = new Image();
-        img.src = `images/jol${pad(nextIndex)}.jpg`;
+        const index = (startIndex + i - 1) % 42 + 1;
+        new Image().src = `images/jol${pad(index)}.jpg`;
       }
-    }
+    };
+
+    const populateSelect = (select, count, firstOptionText = '') => {
+      if (firstOptionText) {
+        select.append(new Option(firstOptionText, ''));
+      }
+      for (let i = 1; i <= count; i++) {
+        select.append(new Option(i, i));
+      }
+    };
+
+    // Setup
+    populateSelect(antalSelect, 16, '-- vælg --');
+    populateSelect(procentSelect, 16, 'Tilfældigt antal');
 
     antalSelect.addEventListener('change', () => {
-      const antal = parseInt(antalSelect.value);
+      const antal = parseInt(antalSelect.value) || 0;
       nameInputsDiv.innerHTML = '';
       for (let i = 0; i < antal; i++) {
         const input = document.createElement('input');
@@ -205,10 +177,10 @@
       selectedNamesDiv.innerHTML = '<strong>Trækker navne...</strong>';
 
       for (let i = 0; i < names.length; i++) {
-        await new Promise(resolve => {
+        await new Promise(res => {
           drumroll.currentTime = 0;
           drumroll.play();
-          setTimeout(resolve, 3000);
+          setTimeout(res, 3000);
         });
 
         if (i === 0) selectedNamesDiv.innerHTML = '<strong>Udvalgte:</strong><br>';
@@ -217,16 +189,14 @@
         div.className = 'name-line';
         div.textContent = names[i];
         selectedNamesDiv.appendChild(div);
-
         selectedNamesDiv.scrollTop = selectedNamesDiv.scrollHeight;
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(res => setTimeout(res, 1000));
       }
 
-      await new Promise(resolve => setTimeout(resolve, 500));
-
+      await new Promise(res => setTimeout(res, 500));
       audio.currentTime = 0;
-      await audio.play(); // important for mobile browser autoplay rules
+      await audio.play();
 
       confetti({
         particleCount: 150,
@@ -238,40 +208,36 @@
     }
 
     btn.addEventListener('click', async () => {
-  if (isAnimating) return;
+      if (isAnimating) return;
 
-  const antal = parseInt(antalSelect.value);
-  const inputs = Array.from(document.querySelectorAll('.name-field'));
-  const names = inputs.map(input => input.value.trim()).filter(name => name !== '');
+      const antal = parseInt(antalSelect.value);
+      const names = Array.from(document.querySelectorAll('.name-field'))
+        .map(input => input.value.trim())
+        .filter(Boolean);
 
-  if (!antal || names.length === 0) {
-    selectedNamesDiv.style.display = 'block';
-    selectedNamesDiv.innerHTML = '<strong>Vælg antal personer</strong>';
-  } else {
-    selectedNamesDiv.style.display = 'block';
-    selectedNamesDiv.innerHTML = '<strong>Trækker navne...</strong>';
-  }
+      if (!antal || names.length === 0) {
+        selectedNamesDiv.style.display = 'block';
+        selectedNamesDiv.innerHTML = '<strong>Vælg antal personer</strong>';
+        return;
+      }
 
-  document.body.style.backgroundImage = `url('images/jol${pad(currentIndex)}.jpg')`;
-  currentIndex = currentIndex === 42 ? 1 : currentIndex + 1;
-  preloadNextImages(currentIndex);
+      // Update background
+      document.body.style.backgroundImage = `url('images/jol${pad(currentIndex)}.jpg')`;
+      currentIndex = currentIndex === 42 ? 1 : currentIndex + 1;
+      preloadNextImages(currentIndex);
 
-  let antalToDraw;
-  if (procentSelect.value === '') {
-    const procent = [20, 40, 60, 80][Math.floor(Math.random() * 4)];
-    antalToDraw = Math.max(1, Math.floor((procent / 100) * names.length));
-  } else {
-    antalToDraw = parseInt(procentSelect.value);
-    antalToDraw = Math.min(antalToDraw, names.length); // Don't exceed number of names
-  }
-  const shuffled = names.sort(() => 0.5 - Math.random());
-  const selected = shuffled.slice(0, antalToDraw);
+      // Select names
+      let antalToDraw = procentSelect.value
+        ? Math.min(parseInt(procentSelect.value), names.length)
+        : Math.max(1, Math.floor(([20, 40, 60, 80][Math.floor(Math.random() * 4)] / 100) * names.length));
 
-  await displayNamesWithDrumroll(selected);
-});
+      const shuffled = [...names].sort(() => 0.5 - Math.random());
+      const selected = shuffled.slice(0, antalToDraw);
+
+      await displayNamesWithDrumroll(selected);
+    });
 
     preloadNextImages(currentIndex);
   </script>
-
 </body>
 </html>
